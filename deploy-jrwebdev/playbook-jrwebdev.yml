@@ -1,0 +1,26 @@
+---
+- hosts: jrwebdev
+  become: true
+
+  tasks:
+  - name: create www dir
+    file: path=/var/www state=directory
+
+  - name: create jrwebdev dir
+    file: path=/var/www/jrwebdev state=directory
+
+  - name: deploy jrwebdev index
+    synchronize:
+      src: ~/jrwebdev/html/
+      dest: /var/www/jrwebdev
+
+  - name: install NGINX
+    raw: yum install nginx -y
+
+  - name: set webserver dir
+    raw: sed -i '44s/\/usr\/share\/nginx\/html/\/var\/www\/jrwebdev/' /etc/nginx/nginx.conf
+
+  - name: starting NGINX
+    service:
+      name: nginx
+      state: started
